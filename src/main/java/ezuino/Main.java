@@ -32,7 +32,7 @@ public class Main {
         CSTPrinter cstp = new CSTPrinter();
         cstp.visit(parseTree);
 
-        showCST(parseTree, parser);
+        //showCST(parseTree, parser);
 
         /*
          * Call of IndentedPrintVisitor BuildAstVisitor ezuinoVisitorForPrinting = new

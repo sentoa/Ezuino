@@ -15,7 +15,7 @@ public class SymbolTableVisitor extends AstVisitor {
     // Types
     private int INTTYPE = 0;
     private int DOUBLETYPE = 1;
-    private int BOOLTYPE = 2;
+    private int BOOLEANTYPE = 2;
     private int STRINGTYPE = 3;
 
     @Override
@@ -77,21 +77,23 @@ public class SymbolTableVisitor extends AstVisitor {
 
         /* Type checks that what is assigned to the variable is what the same type the variable was declared as */
         Symbol symbolFromAssignmentNode = symbolTableManager.getSymbolWithLevel(node.getId(), symbolTableManager.getLevel());
-        int typeFromCurrentValueInSymbolTable = symbolFromAssignmentNode.getNode().getTypeForTypeChecking();
-        System.out.println(node.getExprNode());
-        int typeFromNewAssignedValue = node.getExprNode().getTypeForTypeChecking();
+        //int typeFromCurrentValueInSymbolTable = symbolFromAssignmentNode.getNode().getTypeForTypeChecking();
+        System.out.println("LOOK HERE: " +  node.getExprNode());
+        System.out.println(node.getExprNode().getTypeForTypeChecking());
+        //System.out.println(node.getExprNode());
+        //int typeFromNewAssignedValue = node.getExprNode().getTypeForTypeChecking();
 
-        boolean comparedValuesAreIntOrDouble = (typeFromCurrentValueInSymbolTable == INTTYPE || typeFromCurrentValueInSymbolTable == DOUBLETYPE) &&
-                (typeFromNewAssignedValue == INTTYPE || typeFromNewAssignedValue == DOUBLETYPE);
+        //boolean comparedValuesAreIntOrDouble = (typeFromCurrentValueInSymbolTable == INTTYPE || typeFromCurrentValueInSymbolTable == DOUBLETYPE) &&
+        //        (typeFromNewAssignedValue == INTTYPE || typeFromNewAssignedValue == DOUBLETYPE);
 
         int generalizedType;
 
-        if(comparedValuesAreIntOrDouble){
-            generalizedType = generalize(typeFromCurrentValueInSymbolTable, typeFromNewAssignedValue);
-        }
+        //if(comparedValuesAreIntOrDouble){
+        //    generalizedType = generalize(typeFromCurrentValueInSymbolTable, typeFromNewAssignedValue);
+        //}
 
-        System.out.println("typeFromCurrentValueInSymbolTable: = " + typeFromCurrentValueInSymbolTable);
-        System.out.println("typeFromNewAssignedValue: = " + typeFromNewAssignedValue);
+        //System.out.println("typeFromCurrentValueInSymbolTable: = " + typeFromCurrentValueInSymbolTable);
+        //System.out.println("typeFromNewAssignedValue: = " + typeFromNewAssignedValue);
     }
 
 
@@ -125,7 +127,7 @@ public class SymbolTableVisitor extends AstVisitor {
     @Override
     public void visit(BooleantfNode node) {
         System.out.println("Sets type to boolean");
-        node.setTypeForTypeChecking(BOOLTYPE);
+        node.setTypeForTypeChecking(BOOLEANTYPE);
     }
 
     @Override
@@ -230,7 +232,6 @@ public class SymbolTableVisitor extends AstVisitor {
 
     @Override
     public void visit(RelationalExprNode node) {
-
         node.getLeftNode().accept(this);
         node.getRightNode().accept(this);
     }
@@ -257,10 +258,9 @@ public class SymbolTableVisitor extends AstVisitor {
 
     @Override
     public void visit(AdditiveExprNode node) {
-
         node.getLeftNode().accept(this);
         node.getRightNode().accept(this);
-
+        node.setTypeForTypeChecking(generalize(node.getLeftNode().getTypeForTypeChecking(), node.getRightNode().getTypeForTypeChecking()));
     }
 
     @Override
@@ -279,17 +279,32 @@ public class SymbolTableVisitor extends AstVisitor {
         if(keyWord == "DOUBLE")
             type = DOUBLETYPE;
         if(keyWord == "BOOLEAN")
-            type = BOOLTYPE;
+            type = BOOLEANTYPE;
         if(keyWord == "STRING")
             type = STRINGTYPE;
         return type;
     }
 
-    /* If one of the types entered are double, return DOUBLETYPE otherwise return INTTYPE  */
-    private int generalize(int t1, int t2){
-        if (t1 == DOUBLETYPE || t2 == DOUBLETYPE)
-            return DOUBLETYPE;
-        else return INTTYPE;
+    /* Determines what the type should be converted to. If the expression is of an int and an double, the type should be double.
+      * If it boolean or string both types must be the same. */
+    private int generalize(int type1, int type2){
+        boolean typesAreIntOrDouble = (type1 == INTTYPE || type1 == DOUBLETYPE) &&
+                (type2 == INTTYPE || type2 == DOUBLETYPE);
+        boolean typesAreBoolean = type1 == BOOLEANTYPE && type2 == BOOLEANTYPE;
+        boolean typesAreString = type1 == STRINGTYPE && type2 == STRINGTYPE;
+
+        if(typesAreIntOrDouble){
+            if (type1 == DOUBLETYPE || type2 == DOUBLETYPE)
+                return DOUBLETYPE;
+            else return INTTYPE;
+        }
+        if(typesAreBoolean){
+            return BOOLEANTYPE;
+        }
+        if(typesAreString){
+            return STRINGTYPE;
+        }
+        return 99;
     }
 
     /*  */
