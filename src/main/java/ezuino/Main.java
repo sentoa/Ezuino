@@ -50,8 +50,8 @@ public class Main {
         //IndentedPrintVisitor ipv = new IndentedPrintVisitor();
         //astNode.acceptLevel(ipv, 0);
 
-        SymbolTableVisitor symbolTableFillingVisitor = new SymbolTableVisitor();
-        astNode.accept(symbolTableFillingVisitor);
+        SymbolTableVisitor symbolTableVisitor = new SymbolTableVisitor();
+        astNode.accept(symbolTableVisitor);
         System.out.println(SymbolTableVisitor.symbolTableManager.getSymbolTableSize());
 
     }

@@ -42,6 +42,54 @@ public class SymbolTableVisitorTest {
         astNode.accept(symbolTableVisitor);
     }
 
+    @Test
+    public void getSymbolMadeFromNodeTest() throws IOException {
+        EzuinoParser ep = createParser("int number\n" +
+                " \n" +
+                "func main() {\n" +
+                "    int a\n" +
+                "    int a\n" +
+                "    a := 1\n" +
+                "    if (number < 100) {\n" +
+                "        int a\n" +
+                "        b := 2\n" +
+                "    }\n" +
+                "    if (number = 100) {\n" +
+                "       int b\n" +
+                "       c := 2\n" +
+                "    }\n" +
+                "}");
+        AstNode astNode = ep.start().accept(buildAstVisitor);
+        astNode.accept(symbolTableVisitor);
+    }
+
+    /* Test with several scopes and one duplicate declaration (int a) */
+    @Test
+    public void typeCheckerTest() throws IOException {
+        EzuinoParser ep = createParser("int number\n" +
+                " \n" +
+                "func main() { \n" +
+                "    int a \n" +
+                "    a := 1 \n" +
+                "    if (TRUE) { \n" +
+                "        int a \n" +
+                "        a := 2 \n" +
+                "    } \n" +
+                "    if (TRUE) { \n" +
+                "       int b \n" +
+                "       b := 2 \n" +
+                "    } \n" +
+                "} \n" +
+                " \n" +
+                "func main2() { \n" +
+                "    int c \n" +
+                "    c:=3 \n" +
+                "}");
+        AstNode astNode = ep.start().accept(buildAstVisitor);
+        astNode.accept(symbolTableVisitor);
+        System.out.println("------------Symbol table generated successfully --------------");
+    }
+
     private EzuinoParser createParser(String testString) throws IOException {
         CharStream stream = CharStreams.fromString(testString);
         EzuinoLexer lexer = new EzuinoLexer(stream);

@@ -1,34 +1,51 @@
 package symbolTable;
 
+import ast.AstNode;
+
+import java.util.Iterator;
 import java.util.Stack;
 
 public class SymbolTableManager {
     //private ArrayList<SymbolTable> symbolTables = new ArrayList<SymbolTable>();
 
     private int level = 0;
-    private Stack<SymbolTable> symbleTableStack = new Stack();
+    private Stack<SymbolTable> symbolTableStack = new Stack();
 
     public void openScope(){
         SymbolTable symbolTable = new SymbolTable();
         level += 1;
-        symbleTableStack.push(symbolTable);
+        symbolTableStack.push(symbolTable);
     }
 
     public void closeScope() {
         level -= 1;
-        symbleTableStack.pop();
+        symbolTableStack.pop();
+    }
+
+    public Symbol getSymbolMadeFromNode(AstNode node){
+        Iterator<SymbolTable> symbolTableIterator = symbolTableStack.iterator();
+        while(symbolTableIterator.hasNext()){
+            SymbolTable symbolTable = symbolTableIterator.next();
+            for(Symbol symbol : symbolTable.symbolList){
+                if(symbol.getNode().equals(node)) {
+                    return symbol;
+                }
+            }
+        }
+        System.out.println("returned null");
+        return null;
     }
 
     public SymbolTable getLatestSymbolTable(){
-        return symbleTableStack.peek();
+        return symbolTableStack.peek();
     }
 
     public void addSymbolTable(SymbolTable symbolTable){
-        symbleTableStack.add(symbolTable);
+        symbolTableStack.add(symbolTable);
     }
 
     public int getSymbolTableSize(){
-        return symbleTableStack.size();
+        return symbolTableStack.size();
     }
 
     public int getLevel()
@@ -38,7 +55,7 @@ public class SymbolTableManager {
 
 
 
-    public Stack<SymbolTable> getSymbleTableStack() {
-        return symbleTableStack;
+    public Stack<SymbolTable> getSymbolTableStack() {
+        return symbolTableStack;
     }
 }

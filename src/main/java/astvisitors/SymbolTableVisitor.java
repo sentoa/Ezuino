@@ -12,6 +12,12 @@ import symbolTable.*;
 public class SymbolTableVisitor extends AstVisitor {
     public static SymbolTableManager symbolTableManager = new SymbolTableManager();
 
+    // Types (primitive types i think)
+    private int INTTYPE = 0;
+    private int DOUBLETYPE = 1;
+    private int BOOLTYPE = 2;
+    private int STRINGTYPE = 3;
+
     @Override
     public void visit(StartNode node) {
         symbolTableManager.openScope();
@@ -89,12 +95,6 @@ public class SymbolTableVisitor extends AstVisitor {
 
     }
 
-
-    @Override
-    public void visit(BooleantfNode node) {
-
-    }
-
     @Override
     public void visit(StmtsNode node) {
 
@@ -155,30 +155,44 @@ public class SymbolTableVisitor extends AstVisitor {
     @Override
     public void visit(Assign_stmtNode node) {
         Symbol symbol = new Symbol(node.getId(), node);
-
         symbolTableManager.getLatestSymbolTable().IfDeclaredUpdate(symbol, node);
         node.getExprNode().accept(this);
-
+        // After the value has been assigned to the symbol table do typeChecking
+        //Symbol symbolWithTheSameRightNode = SymbolTableVisitor.symbolTableManager.getSymbolMadeFromNode(node);
+        //System.out.println(symbolWithTheSameRightNode.getIdentity());
+        symbolTableManager.getSymbolTableStack().forEach(symbolTable -> {
+            System.out.println(symbolTable);
+        });
+        System.out.println(node.getId() + " = " + convertTypeKeywordStringToTypeInt(node.getId()));
+        System.out.println("For " + node.getId());
+        System.out.println("Returned type: " + node.getExprNode().getTypeForTypeChecking());
     }
 
-    @Override
     public void visit(IntegerNode node) {
-
+        System.out.println("Sets type to integer");
+        node.setTypeForTypeChecking(INTTYPE);
     }
 
     @Override
     public void visit(DoubleNode node) {
+        System.out.println("Sets type to double");
+        node.setTypeForTypeChecking(DOUBLETYPE);
+    }
 
+    @Override
+    public void visit(BooleantfNode node) {
+        System.out.println("Sets type to boolean");
+        node.setTypeForTypeChecking(BOOLTYPE);
     }
 
     @Override
     public void visit(StringNode node) {
-
+        System.out.println("Sets type to string");
+        node.setTypeForTypeChecking(STRINGTYPE);
     }
 
     @Override
     public void visit(IdNode node) {
-
     }
 
     @Override
@@ -232,5 +246,18 @@ public class SymbolTableVisitor extends AstVisitor {
 
     }
 
+
+    private int convertTypeKeywordStringToTypeInt(String keyWord){
+        int type = 99;  //It didnt enter any
+        if(keyWord == "int")
+            type = INTTYPE;
+        if(keyWord == "double")
+            type = DOUBLETYPE;
+        if(keyWord == "boolean")
+            type = BOOLTYPE;
+        if(keyWord == "string")
+            type = STRINGTYPE;
+        return type;
+    }
 
 }

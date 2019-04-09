@@ -12,10 +12,6 @@ public class SymbolTable {
         this.symbolList = symbolList;
     }
 
-    public Symbol retrieveFirstSymbol() {
-        return symbolList.get(0);
-    }
-
     public void insert(Symbol symbol) throws AlreadyInTableException
     {
         if (!isAlreadyInTable(symbol)) {
