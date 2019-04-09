@@ -2,18 +2,7 @@ int number
  
 func main() {
     int a
-    a := 1
-    if (TRUE) {
-        int a
-        a := 2
-    }
-    if (TRUE) {
-       int b
-       b := 2
-    }
-}
-
-func main2 {
-    int c
-    c:=3
+    double b
+    a := 1 + 3
+    b := 2.3
 }

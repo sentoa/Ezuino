@@ -18,8 +18,6 @@ public class TypeChecker extends AstVisitor{
 
     @Override
     public void visit(Assign_stmtNode node) {
-        Symbol symbolWithTheSameRightNode = SymbolTableVisitor.symbolTableManager.getSymbolMadeFromNode(node);
-        System.out.println(symbolWithTheSameRightNode.getIdentity());
         node.getExprNode().accept(this);
         System.out.println(node.getId() + " = " + convertTypeKeywordStringToTypeInt(node.getId()));
         System.out.println("For " + node.getId());

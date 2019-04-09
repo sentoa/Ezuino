@@ -12,7 +12,7 @@ import symbolTable.*;
 public class SymbolTableVisitor extends AstVisitor {
     public static SymbolTableManager symbolTableManager = new SymbolTableManager();
 
-    // Types (primitive types i think)
+    // Types
     private int INTTYPE = 0;
     private int DOUBLETYPE = 1;
     private int BOOLTYPE = 2;
@@ -28,6 +28,72 @@ public class SymbolTableVisitor extends AstVisitor {
         System.out.println("Close global scope");
         symbolTableManager.closeScope();
     }
+
+
+
+    @Override
+    public void visit(BlockNode node) {
+        symbolTableManager.openScope();
+        System.out.println("Open Level " + symbolTableManager.getLevel());
+        if (node.getDclsNode() != null) {
+            node.getDclsNode().accept(this);
+        }
+        if (node.getStmtsNode() != null) {
+            node.getStmtsNode().accept(this);
+        }
+        if (node.getReturnstmtNode() != null) {
+            node.getReturnstmtNode().accept(this);
+        }
+        symbolTableManager.closeScope();
+    }
+
+    @Override
+    public void visit(DclNode node) {
+        //Remembers the type in the getType shared across all AstNodes.
+        node.setTypeForTypeChecking(convertTypeStringToTypeInt(node.getType().toString()));
+        Symbol symbol = new Symbol(node.getID(), node);
+        SymbolTable s = SymbolTableVisitor.symbolTableManager.getLatestSymbolTable();
+        try
+        {
+            s.insert(symbol);
+        } catch (AlreadyInTableException e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    @Override
+    public void visit(Assign_stmtNode node) {
+        /* When an assignment occurs, check if the variable has been declared ie. exist in the symbol table, and if it does,
+           update the right side of the variable. an new right side to an variable, check if the variable has already  already exist in the symbol table and if it
+           does update the variable in the symbol table. */
+        Symbol symbol = new Symbol(node.getId(), node);
+        symbolTableManager.getLatestSymbolTable().IfDeclaredUpdate(symbol, node);
+        node.getExprNode().accept(this);
+        //String test = node.getExprNode()
+
+        // Prints the stack
+        //symbolTableManager.getSymbolTableStack().forEach(System.out::println);
+
+        /* Type checks that what is assigned to the variable is what the same type the variable was declared as */
+        Symbol symbolFromAssignmentNode = symbolTableManager.getSymbolWithLevel(node.getId(), symbolTableManager.getLevel());
+        int typeFromCurrentValueInSymbolTable = symbolFromAssignmentNode.getNode().getTypeForTypeChecking();
+        System.out.println(node.getExprNode());
+        int typeFromNewAssignedValue = node.getExprNode().getTypeForTypeChecking();
+
+        boolean comparedValuesAreIntOrDouble = (typeFromCurrentValueInSymbolTable == INTTYPE || typeFromCurrentValueInSymbolTable == DOUBLETYPE) &&
+                (typeFromNewAssignedValue == INTTYPE || typeFromNewAssignedValue == DOUBLETYPE);
+
+        int generalizedType;
+
+        if(comparedValuesAreIntOrDouble){
+            generalizedType = generalize(typeFromCurrentValueInSymbolTable, typeFromNewAssignedValue);
+        }
+
+        System.out.println("typeFromCurrentValueInSymbolTable: = " + typeFromCurrentValueInSymbolTable);
+        System.out.println("typeFromNewAssignedValue: = " + typeFromNewAssignedValue);
+    }
+
 
     @Override
     public void visit(Func_callStmtNode node) {
@@ -45,20 +111,27 @@ public class SymbolTableVisitor extends AstVisitor {
         }
     }
 
+    public void visit(IntegerNode node) {
+        System.out.println("Sets type to integer");
+        node.setTypeForTypeChecking(INTTYPE);
+    }
+
     @Override
-    public void visit(BlockNode node) {
-        symbolTableManager.openScope();
-        System.out.println("Open Level " + symbolTableManager.getLevel());
-        if (node.getDclsNode() != null) {
-            node.getDclsNode().accept(this);
-        }
-        if (node.getStmtsNode() != null) {
-            node.getStmtsNode().accept(this);
-        }
-        if (node.getReturnstmtNode() != null) {
-            node.getReturnstmtNode().accept(this);
-        }
-        symbolTableManager.closeScope();
+    public void visit(DoubleNode node) {
+        System.out.println("Sets type to double");
+        node.setTypeForTypeChecking(DOUBLETYPE);
+    }
+
+    @Override
+    public void visit(BooleantfNode node) {
+        System.out.println("Sets type to boolean");
+        node.setTypeForTypeChecking(BOOLTYPE);
+    }
+
+    @Override
+    public void visit(StringNode node) {
+        System.out.println("Sets type to string");
+        node.setTypeForTypeChecking(STRINGTYPE);
     }
 
     @Override
@@ -105,18 +178,7 @@ public class SymbolTableVisitor extends AstVisitor {
 
     }
 
-    @Override
-    public void visit(DclNode node) {
-        Symbol symbol = new Symbol(node.getID(), node);
-        SymbolTable s = SymbolTableVisitor.symbolTableManager.getLatestSymbolTable();
-        try
-        {
-            s.insert(symbol);
-        } catch (AlreadyInTableException e)
-        {
-            System.out.println(e);
-        }
-    }
+
 
     @Override
     public void visit(TypeNode node) {
@@ -152,44 +214,7 @@ public class SymbolTableVisitor extends AstVisitor {
 
     }
 
-    @Override
-    public void visit(Assign_stmtNode node) {
-        Symbol symbol = new Symbol(node.getId(), node);
-        symbolTableManager.getLatestSymbolTable().IfDeclaredUpdate(symbol, node);
-        node.getExprNode().accept(this);
-        // After the value has been assigned to the symbol table do typeChecking
-        //Symbol symbolWithTheSameRightNode = SymbolTableVisitor.symbolTableManager.getSymbolMadeFromNode(node);
-        //System.out.println(symbolWithTheSameRightNode.getIdentity());
-        symbolTableManager.getSymbolTableStack().forEach(symbolTable -> {
-            System.out.println(symbolTable);
-        });
-        System.out.println(node.getId() + " = " + convertTypeKeywordStringToTypeInt(node.getId()));
-        System.out.println("For " + node.getId());
-        System.out.println("Returned type: " + node.getExprNode().getTypeForTypeChecking());
-    }
 
-    public void visit(IntegerNode node) {
-        System.out.println("Sets type to integer");
-        node.setTypeForTypeChecking(INTTYPE);
-    }
-
-    @Override
-    public void visit(DoubleNode node) {
-        System.out.println("Sets type to double");
-        node.setTypeForTypeChecking(DOUBLETYPE);
-    }
-
-    @Override
-    public void visit(BooleantfNode node) {
-        System.out.println("Sets type to boolean");
-        node.setTypeForTypeChecking(BOOLTYPE);
-    }
-
-    @Override
-    public void visit(StringNode node) {
-        System.out.println("Sets type to string");
-        node.setTypeForTypeChecking(STRINGTYPE);
-    }
 
     @Override
     public void visit(IdNode node) {
@@ -247,17 +272,34 @@ public class SymbolTableVisitor extends AstVisitor {
     }
 
 
-    private int convertTypeKeywordStringToTypeInt(String keyWord){
+    private int convertTypeStringToTypeInt(String keyWord){
         int type = 99;  //It didnt enter any
-        if(keyWord == "int")
+        if(keyWord == "INT")
             type = INTTYPE;
-        if(keyWord == "double")
+        if(keyWord == "DOUBLE")
             type = DOUBLETYPE;
-        if(keyWord == "boolean")
+        if(keyWord == "BOOLEAN")
             type = BOOLTYPE;
-        if(keyWord == "string")
+        if(keyWord == "STRING")
             type = STRINGTYPE;
         return type;
+    }
+
+    /* If one of the types entered are double, return DOUBLETYPE otherwise return INTTYPE  */
+    private int generalize(int t1, int t2){
+        if (t1 == DOUBLETYPE || t2 == DOUBLETYPE)
+            return DOUBLETYPE;
+        else return INTTYPE;
+    }
+
+    /*  */
+    private void convert(AstNode n, int t){
+        if (n.getTypeForTypeChecking() == DOUBLETYPE && t == INTTYPE) error("Illegal type conversion");
+        else if (n.getTypeForTypeChecking() == INTTYPE && t == DOUBLETYPE) n.setTypeForTypeChecking(DOUBLETYPE);
+    }
+
+    private void error(String message) {
+        throw new Error(message);
     }
 
 }

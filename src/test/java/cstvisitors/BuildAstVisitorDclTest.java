@@ -48,7 +48,7 @@ public class BuildAstVisitorDclTest {
 	public void booleanDclNodeTest() throws IOException {
 		EzuinoParser ep = createParser("boolean a");
 		DclNode topNode = (DclNode)ep.dcl().accept(visitor);
-		assertEquals(Type.BOOL, topNode.getType());
+		assertEquals(Type.BOOLEAN, topNode.getType());
 		assertEquals("a", topNode.getID());
 	}
 	

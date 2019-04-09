@@ -3,6 +3,6 @@ package ast;
 public enum Type {
 	INT,
 	DOUBLE,
-	BOOL,
+	BOOLEAN,
 	STRING,
 }

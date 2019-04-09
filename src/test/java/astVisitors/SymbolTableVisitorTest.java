@@ -66,25 +66,11 @@ public class SymbolTableVisitorTest {
     /* Test with several scopes and one duplicate declaration (int a) */
     @Test
     public void typeCheckerTest() throws IOException {
-        EzuinoParser ep = createParser("int number\n" +
-                " \n" +
-                "func main() { \n" +
-                "    int a \n" +
-                "    a := 1 \n" +
-                "    if (TRUE) { \n" +
-                "        int a \n" +
-                "        a := 2 \n" +
-                "    } \n" +
-                "    if (TRUE) { \n" +
-                "       int b \n" +
-                "       b := 2 \n" +
-                "    } \n" +
-                "} \n" +
-                " \n" +
-                "func main2() { \n" +
-                "    int c \n" +
-                "    c:=3 \n" +
-                "}");
+        EzuinoParser ep = createParser("    int a\n" +
+                "    boolean b\n" +
+                "    a := 1\n" +
+                "    b := TRUE\n" +
+                "    ");
         AstNode astNode = ep.start().accept(buildAstVisitor);
         astNode.accept(symbolTableVisitor);
         System.out.println("------------Symbol table generated successfully --------------");

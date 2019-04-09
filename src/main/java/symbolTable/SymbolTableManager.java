@@ -22,12 +22,10 @@ public class SymbolTableManager {
         symbolTableStack.pop();
     }
 
-    public Symbol getSymbolMadeFromNode(AstNode node){
-        Iterator<SymbolTable> symbolTableIterator = symbolTableStack.iterator();
-        while(symbolTableIterator.hasNext()){
-            SymbolTable symbolTable = symbolTableIterator.next();
-            for(Symbol symbol : symbolTable.symbolList){
-                if(symbol.getNode().equals(node)) {
+    public Symbol getSymbolWithLevel(String identity, int level){
+        for (SymbolTable symbolTable : symbolTableStack) {
+            for (Symbol symbol : symbolTable.symbolList) {
+                if (symbol.getIdentity().equals(identity) && symbol.getLevel() == level) {
                     return symbol;
                 }
             }

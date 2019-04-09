@@ -249,7 +249,7 @@ public class BuildAstVisitor extends EzuinoBaseVisitor<AstNode> {
             type = Type.STRING;
         }
         if (ctx.BOOLEANDCL() != null) {
-            type = Type.BOOL;
+            type = Type.BOOLEAN;
         }
         return type;
     }
