@@ -1,13 +1,8 @@
 package symbolTable;
 
-import ast.AstNode;
-
-import java.util.Iterator;
 import java.util.Stack;
 
 public class SymbolTableManager {
-    //private ArrayList<SymbolTable> symbolTables = new ArrayList<SymbolTable>();
-
     private int level = 0;
     private Stack<SymbolTable> symbolTableStack = new Stack();
 

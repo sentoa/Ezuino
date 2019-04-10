@@ -47,8 +47,8 @@ public class Main {
         // Runs the three, filling up the AST array list attribute
         AstNode astNode = parseTree.accept(buildAstVisitor);
 
-        IndentedPrintVisitor ipv = new IndentedPrintVisitor();
-        astNode.acceptLevel(ipv, 0);
+        //IndentedPrintVisitor ipv = new IndentedPrintVisitor();
+        //astNode.acceptLevel(ipv, 0);
 
         SymbolTableVisitor symbolTableVisitor = new SymbolTableVisitor();
         astNode.accept(symbolTableVisitor);

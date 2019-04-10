@@ -16,7 +16,7 @@ func main() {
 
     if(TRUE){
         boolean e
-        e := 3
+        e := 1
     }
 }
 

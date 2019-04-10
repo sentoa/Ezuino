@@ -24,7 +24,6 @@ public class SymbolTableVisitor extends AstVisitor {
         System.out.println("Open global scope");
         node.getDcls().accept(this);
         node.getStmts().accept(this);
-        //System.out.println(symbolTableManager.getLatestSymbolTable());
         System.out.println("Close global scope");
         symbolTableManager.closeScope();
     }
@@ -69,33 +68,14 @@ public class SymbolTableVisitor extends AstVisitor {
            does update the variable in the symbol table. */
         Symbol symbol = new Symbol(node.getId(), node);
         symbolTableManager.getLatestSymbolTable().IfDeclaredUpdate(symbol, node);
-
         node.getExprNode().accept(this);
-        //String test = node.getExprNode()
 
-        // Prints the stack
-        //symbolTableManager.getSymbolTableStack().forEach(System.out::println);
 
         /* Type checks that what is assigned to the variable is what the same type the variable was declared as */
         Symbol symbolFromAssignmentNode = symbolTableManager.getSymbolWithLevel(node.getId(), symbolTableManager.getLevel());
-
-        //int typeFromCurrentValueInSymbolTable = symbolFromAssignmentNode.getNode().getTypeForTypeChecking();
-        System.out.println("LOOK HERE: " +  node.getExprNode());
-        System.out.println(node.getExprNode().getTypeForTypeChecking());
-        //System.out.println(node.getExprNode());
-        //int typeFromNewAssignedValue = node.getExprNode().getTypeForTypeChecking();
-
-        //boolean comparedValuesAreIntOrDouble = (typeFromCurrentValueInSymbolTable == INTTYPE || typeFromCurrentValueInSymbolTable == DOUBLETYPE) &&
-        //        (typeFromNewAssignedValue == INTTYPE || typeFromNewAssignedValue == DOUBLETYPE);
-
-        int generalizedType;
-
-        //if(comparedValuesAreIntOrDouble){
-        //    generalizedType = generalize(typeFromCurrentValueInSymbolTable, typeFromNewAssignedValue);
-        //}
-
-        //System.out.println("typeFromCurrentValueInSymbolTable: = " + typeFromCurrentValueInSymbolTable);
-        //System.out.println("typeFromNewAssignedValue: = " + typeFromNewAssignedValue);
+        int typeFromCurrentValueInSymbolTable = symbolFromAssignmentNode.getNode().getTypeForTypeChecking();
+        int typeFromNewAssignedValue = node.getExprNode().getTypeForTypeChecking();
+        generalize(typeFromCurrentValueInSymbolTable, typeFromNewAssignedValue);
     }
 
 
@@ -338,7 +318,7 @@ public class SymbolTableVisitor extends AstVisitor {
             return STRINGTYPE;
         }
         else {
-            System.err.println("Error in generalize: Illegal type usage in expression ");
+            System.err.println("Illegal type usage: type " + type1 + " and " + type2 + " are not compatible");
         }
         return 99;
     }
