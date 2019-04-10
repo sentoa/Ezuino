@@ -69,6 +69,7 @@ public class SymbolTableVisitor extends AstVisitor {
            does update the variable in the symbol table. */
         Symbol symbol = new Symbol(node.getId(), node);
         symbolTableManager.getLatestSymbolTable().IfDeclaredUpdate(symbol, node);
+
         node.getExprNode().accept(this);
         //String test = node.getExprNode()
 
@@ -77,6 +78,7 @@ public class SymbolTableVisitor extends AstVisitor {
 
         /* Type checks that what is assigned to the variable is what the same type the variable was declared as */
         Symbol symbolFromAssignmentNode = symbolTableManager.getSymbolWithLevel(node.getId(), symbolTableManager.getLevel());
+
         //int typeFromCurrentValueInSymbolTable = symbolFromAssignmentNode.getNode().getTypeForTypeChecking();
         System.out.println("LOOK HERE: " +  node.getExprNode());
         System.out.println(node.getExprNode().getTypeForTypeChecking());
@@ -143,6 +145,7 @@ public class SymbolTableVisitor extends AstVisitor {
             parameter.accept(this);
         }
         node.getBlockNode().accept(this);
+
     }
 
     @Override
@@ -156,6 +159,9 @@ public class SymbolTableVisitor extends AstVisitor {
     public void visit(Return_stmtNode node) {
 
         node.getReturnExpr().accept(this);
+
+        /* Type checking: Just sets the node to the type of the expression inside it.  */
+        node.setTypeForTypeChecking(node.getReturnExpr().getTypeForTypeChecking());
     }
 
     @Override
@@ -185,7 +191,6 @@ public class SymbolTableVisitor extends AstVisitor {
     @Override
     public void visit(TypeNode node) {
         System.out.println("In TypeNode");
-
     }
 
     @Override
@@ -207,24 +212,27 @@ public class SymbolTableVisitor extends AstVisitor {
     @Override
     public void visit(ExprNode node) {
         System.out.println("In ExprNode");
-
     }
 
     @Override
     public void visit(ParametersNode node) {
+        /* Will not get an type for typechecking, since it is only used in func def, that will never be a part of an expression
+        * or the right side of an assignment. */
         System.out.println("In ParametersNode");
-
     }
 
 
 
     @Override
     public void visit(IdNode node) {
+        /* Sets the type of the id node to the corresponding variable in the symbol table. */
+        Symbol symbolFromSymbolTable = symbolTableManager.getSymbolWithLevel(node.getVal(), symbolTableManager.getLevel());
+        int type = symbolFromSymbolTable.getNode().getTypeForTypeChecking();
+        node.setTypeForTypeChecking(type);
     }
 
     @Override
     public void visit(Built_in_funcNode node) {
-
         if (node.getPrintlNode() != null) {
             node.getPrintlNode().accept(this);
         }
@@ -234,6 +242,11 @@ public class SymbolTableVisitor extends AstVisitor {
     public void visit(RelationalExprNode node) {
         node.getLeftNode().accept(this);
         node.getRightNode().accept(this);
+
+        /* Type checking */
+        int leftNodeType = node.getLeftNode().getTypeForTypeChecking();
+        int rightNodeType = node.getRightNode().getTypeForTypeChecking();
+        node.setTypeForTypeChecking(generalize(leftNodeType, rightNodeType));
     }
 
     @Override
@@ -241,12 +254,18 @@ public class SymbolTableVisitor extends AstVisitor {
 
         node.getLeftNode().accept(this);
         node.getRelationalExprNode().accept(this);
+
+        /* Type checking */
+        int leftNodeType = node.getLeftNode().getTypeForTypeChecking();
+        int relationalExprType = node.getRelationalExprNode().getTypeForTypeChecking();
+        node.setTypeForTypeChecking(generalize(leftNodeType, relationalExprType));
     }
 
     @Override
     public void visit(ParenthesisExprNode node) {
-
         node.getNode().accept(this);
+        /* Type checking: Just sets the parentheses node to the type of the expression inside it.  */
+        node.setTypeForTypeChecking(node.getNode().getTypeForTypeChecking());
     }
 
     @Override
@@ -254,21 +273,35 @@ public class SymbolTableVisitor extends AstVisitor {
 
         node.getLeftNode().accept(this);
         node.getRightNode().accept(this);
+
+        /* Type checking */
+        int leftNodeType = node.getLeftNode().getTypeForTypeChecking();
+        int rightNodeType = node.getRightNode().getTypeForTypeChecking();
+        node.setTypeForTypeChecking(generalize(leftNodeType, rightNodeType));
     }
 
     @Override
     public void visit(AdditiveExprNode node) {
         node.getLeftNode().accept(this);
         node.getRightNode().accept(this);
-        node.setTypeForTypeChecking(generalize(node.getLeftNode().getTypeForTypeChecking(), node.getRightNode().getTypeForTypeChecking()));
+        System.out.println("left node " + node.getLeftNode());
+        System.out.println("right node " + node.getRightNode());
+
+        /* Type checking */
+        int leftNodeType = node.getLeftNode().getTypeForTypeChecking();
+        int rightNodeType = node.getRightNode().getTypeForTypeChecking();
+        node.setTypeForTypeChecking(generalize(leftNodeType, rightNodeType));
     }
 
     @Override
     public void visit(MultiplicativeExprNode node) {
-
         node.getLeftNode().accept(this);
         node.getRightNode().accept(this);
 
+        /* Type checking */
+        int leftNodeType = node.getLeftNode().getTypeForTypeChecking();
+        int rightNodeType = node.getRightNode().getTypeForTypeChecking();
+        node.setTypeForTypeChecking(generalize(leftNodeType, rightNodeType));
     }
 
 
@@ -287,7 +320,7 @@ public class SymbolTableVisitor extends AstVisitor {
 
     /* Determines what the type should be converted to. If the expression is of an int and an double, the type should be double.
       * If it boolean or string both types must be the same. */
-    private int generalize(int type1, int type2){
+    private int generalize(int type1, int type2) {
         boolean typesAreIntOrDouble = (type1 == INTTYPE || type1 == DOUBLETYPE) &&
                 (type2 == INTTYPE || type2 == DOUBLETYPE);
         boolean typesAreBoolean = type1 == BOOLEANTYPE && type2 == BOOLEANTYPE;
@@ -304,10 +337,12 @@ public class SymbolTableVisitor extends AstVisitor {
         if(typesAreString){
             return STRINGTYPE;
         }
+        else {
+            System.err.println("Error in generalize: Illegal type usage in expression ");
+        }
         return 99;
     }
 
-    /*  */
     private void convert(AstNode n, int t){
         if (n.getTypeForTypeChecking() == DOUBLETYPE && t == INTTYPE) error("Illegal type conversion");
         else if (n.getTypeForTypeChecking() == INTTYPE && t == DOUBLETYPE) n.setTypeForTypeChecking(DOUBLETYPE);
@@ -316,5 +351,4 @@ public class SymbolTableVisitor extends AstVisitor {
     private void error(String message) {
         throw new Error(message);
     }
-
 }

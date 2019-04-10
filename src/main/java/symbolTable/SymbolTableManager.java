@@ -38,10 +38,6 @@ public class SymbolTableManager {
         return symbolTableStack.peek();
     }
 
-    public void addSymbolTable(SymbolTable symbolTable){
-        symbolTableStack.add(symbolTable);
-    }
-
     public int getSymbolTableSize(){
         return symbolTableStack.size();
     }
