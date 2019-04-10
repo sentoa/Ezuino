@@ -29,10 +29,12 @@ public class SymbolTableManager {
         return null;
     }
 
-    public Symbol getFirstMatchInStack(String identity, int level){
+    public Symbol getFirstMatchInStack(String identity){
+        /* The stack is looked through from the top of the stack to the button of the stack, if it finds a match it
+           returns that symbol */
         for (SymbolTable symbolTable : symbolTableStack) {
             for (Symbol symbol : symbolTable.symbolList) {
-                if (symbol.getIdentity().equals(identity) && symbol.getLevel() == level) {
+                if (symbol.getIdentity().equals(identity)) {
                     return symbol;
                 }
             }

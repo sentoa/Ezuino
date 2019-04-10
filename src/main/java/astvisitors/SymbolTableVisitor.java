@@ -72,7 +72,7 @@ public class SymbolTableVisitor extends AstVisitor {
 
 
         /* Type checks that what is assigned to the variable is what the same type the variable was declared as */
-        Symbol symbolFromAssignmentNode = symbolTableManager.getSymbolWithLevel(node.getId(), symbolTableManager.getLevel());
+        Symbol symbolFromAssignmentNode = symbolTableManager.getFirstMatchInStack(node.getId());
         int typeFromCurrentValueInSymbolTable = symbolFromAssignmentNode.getNode().getTypeForTypeChecking();
         int typeFromNewAssignedValue = node.getExprNode().getTypeForTypeChecking();
         generalize(typeFromCurrentValueInSymbolTable, typeFromNewAssignedValue);
