@@ -96,25 +96,21 @@ public class SymbolTableVisitor extends AstVisitor {
     }
 
     public void visit(IntegerNode node) {
-        System.out.println("Sets type to integer");
         node.setTypeForTypeChecking(INTTYPE);
     }
 
     @Override
     public void visit(DoubleNode node) {
-        System.out.println("Sets type to double");
         node.setTypeForTypeChecking(DOUBLETYPE);
     }
 
     @Override
     public void visit(BooleantfNode node) {
-        System.out.println("Sets type to boolean");
         node.setTypeForTypeChecking(BOOLEANTYPE);
     }
 
     @Override
     public void visit(StringNode node) {
-        System.out.println("Sets type to string");
         node.setTypeForTypeChecking(STRINGTYPE);
     }
 
@@ -264,8 +260,6 @@ public class SymbolTableVisitor extends AstVisitor {
     public void visit(AdditiveExprNode node) {
         node.getLeftNode().accept(this);
         node.getRightNode().accept(this);
-        System.out.println("left node " + node.getLeftNode());
-        System.out.println("right node " + node.getRightNode());
 
         /* Type checking */
         int leftNodeType = node.getLeftNode().getTypeForTypeChecking();
@@ -286,7 +280,7 @@ public class SymbolTableVisitor extends AstVisitor {
 
 
     private int convertTypeStringToTypeInt(String keyWord){
-        int type = 99;  //It didnt enter any
+        int type = -1;  //It didnt enter any
         if(keyWord == "INT")
             type = INTTYPE;
         if(keyWord == "DOUBLE")
@@ -320,7 +314,7 @@ public class SymbolTableVisitor extends AstVisitor {
         else {
             System.err.println("Illegal type usage: type " + type1 + " and " + type2 + " are not compatible");
         }
-        return 99;
+        return -1;
     }
 
     private void convert(AstNode n, int t){

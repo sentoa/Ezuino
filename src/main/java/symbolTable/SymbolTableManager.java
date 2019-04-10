@@ -29,6 +29,18 @@ public class SymbolTableManager {
         return null;
     }
 
+    public Symbol getFirstMatchInStack(String identity, int level){
+        for (SymbolTable symbolTable : symbolTableStack) {
+            for (Symbol symbol : symbolTable.symbolList) {
+                if (symbol.getIdentity().equals(identity) && symbol.getLevel() == level) {
+                    return symbol;
+                }
+            }
+        }
+        System.out.println("returned null");
+        return null;
+    }
+
     public SymbolTable getLatestSymbolTable(){
         return symbolTableStack.peek();
     }

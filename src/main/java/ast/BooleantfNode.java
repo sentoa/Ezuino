@@ -9,7 +9,6 @@ public class BooleantfNode extends PrimaryExprNode {
 	private String boolval;
 
 	public BooleantfNode(String boolval) {
-		System.out.println("Created Boolean Value");
 		this.boolval = boolval;
 	}
 
